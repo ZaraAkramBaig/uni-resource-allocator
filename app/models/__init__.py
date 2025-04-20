@@ -1,17 +1,7 @@
-# from app import db
+from flask_sqlalchemy import SQLAlchemy
 
-# # Import all models here
-# from app.models.department import Department
-# from app.models.faculty import Faculty
-# from app.models.course import Course
-# from app.models.classroom import Classroom
+db = SQLAlchemy()
 
-from app import db
-
-# Import all models here
-from app.models.department import Department
-from app.models.faculty import Faculty
-from app.models.course import Course
-from app.models.classroom import Classroom
-from app.models.student import Student
-from app.models.user import User
+# Import models after db is initialized
+from App.models.university import Institution
+from App.models.SuperAdmin import Admin
