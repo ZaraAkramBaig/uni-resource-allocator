@@ -1,9 +1,13 @@
 from app import create_app
+from flask_cors import CORS
+from App.models import db
+
 
 app = create_app()
+CORS(app)
 
 with app.app_context():
-    from App.models import db
     db.create_all()  # Create database tables if they don't exist
+
 if __name__ == '__main__':
     app.run(debug=True)

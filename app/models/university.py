@@ -6,7 +6,6 @@ class Institution(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
-    institution_type = db.Column(db.String(50), nullable=False)  # University, College, Institute, etc.
     year_established = db.Column(db.Integer)
     institution_code = db.Column(db.String(50), unique=True)
 
@@ -24,12 +23,11 @@ class Institution(db.Model):
     full_address = db.Column(db.Text)
 
     # Other Info
-    num_departments = db.Column(db.Integer)
-    num_students_faculty = db.Column(db.Integer)
     accreditation_details = db.Column(db.Text)
     additional_notes = db.Column(db.Text)
 
     # Relationship with admin
     admin = db.relationship('Admin', backref='institution', uselist=False, cascade="all, delete", lazy=True)
+    active = db.Column(db.Boolean, default=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
