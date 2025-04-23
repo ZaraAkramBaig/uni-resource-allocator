@@ -84,34 +84,12 @@ def delete_institution(id):
     institution = Institution.query.get(id)
     if not institution:
         return jsonify({'error': 'Institution not found'}), 404
-    print(id)
     
     # Delete the institution
     db.session.delete(institution)
     db.session.commit()
     
     return jsonify({'message': 'Institution deleted successfully'}), 200
-
-# Approve Institution
-@institution.route('/institution/<int:id>/approve', methods=['PUT'])
-def approve_institution(id):
-    data=request.get_json()
-    institution = Institution.query.get(id)
-    print(institution)
-
-    admin = Admin.query.filter_by(institution_id=id).first()
-    if not admin:
-        return jsonify({'error': 'Admin not found for this institution'}), 404
-    
-    if not institution:
-        return jsonify({'error': 'Institution not found'}), 404
-    
-    # Approve the institution
-    institution.active = data["active"]
-    institution.admin = admin
-    db.session.commit()
-    
-    return jsonify({'message': 'Institution approved successfully'}), 200
 
 
 
@@ -125,6 +103,10 @@ def register_admin(institution_id):
     if not institution:
         return jsonify({'error': 'Institution not found'}), 404
     
+    admin = Admin.query.filter_by(institution_id=institution_id).all()
+    if admin:
+        return jsonify({'error': 'Admin already exists for this institution'}), 400
+
 
     # Create new admin instance
     new_admin = Admin(
@@ -136,6 +118,9 @@ def register_admin(institution_id):
         created_at=datetime.datetime.now()
     )
     
+    institution.active = True
+    institution.admin = new_admin
+
     # Add to database
     db.session.add(new_admin)
     db.session.commit()
