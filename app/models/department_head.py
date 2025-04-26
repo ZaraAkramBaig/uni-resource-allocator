@@ -9,7 +9,7 @@ class DepartmentHead(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
-    institution_id = db.Column(db.Integer, db.ForeignKey('institution.id'), nullable=False)
+    institutions_id = db.Column(db.Integer, db.ForeignKey('institutions.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -22,7 +22,7 @@ class DepartmentHead(db.Model):
             'name': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
-            'institution_id': self.institution_id,
+            'institutions_id': self.institutions_id,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
