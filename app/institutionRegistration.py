@@ -1,9 +1,11 @@
 from flask import jsonify
 from flask import request, flash, Blueprint
-from .models.SuperAdmin import Admin
+from .models.admin import Admin
 from .models.university import Institution
 from App.models import db
 import datetime
+import bcrypt
+from .models.user import User
 
 institution = Blueprint('institution', __name__)
 
@@ -31,7 +33,9 @@ def register_institution():
         accreditation_details=data.get('accreditation_details'),
         additional_notes=data.get('additional_notes'),
         active=False,
-        created_at=datetime.datetime.now()
+        created_at=datetime.datetime.now(),
+        admin_full_name=data.get('admin_full_name'),
+        admin_phone_number=data.get('admin_phone_number'),
     )
     
     # Add to database
@@ -44,6 +48,7 @@ def register_institution():
 @institution.route('/institution', methods=['GET'])
 def get_institutions():
     institutions = Institution.query.all()
+    print(institutions)
     institution_list = []
 
     for institution in institutions:
@@ -65,6 +70,8 @@ def get_institutions():
             'additional_notes': institution.additional_notes,
             "active": institution.active,
             "created_at": institution.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "admin_full_name": institution.admin_full_name,
+            "admin_phone_number": institution.admin_phone_number,
             "admin": {
                 'id': institution.admin.id if institution.admin else None,
                 'full_name': institution.admin.full_name if institution.admin else None,
@@ -103,26 +110,51 @@ def register_admin(institution_id):
     if not institution:
         return jsonify({'error': 'Institution not found'}), 404
     
-    admin = Admin.query.filter_by(institution_id=institution_id).all()
+    admin = Admin.query.filter_by(institution_id=institution_id).first()
     if admin:
         return jsonify({'error': 'Admin already exists for this institution'}), 400
 
+    password=bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8')
 
     # Create new admin instance
     new_admin = Admin(
         institution_id=institution.id,
+        user_id=data['user_id'],
         full_name=data['full_name'],
         email=data['email'],
         phone=data['phone'],
-        password=data['password'],
+        password=password,
         created_at=datetime.datetime.now()
     )
     
+
     institution.active = True
     institution.admin = new_admin
 
     # Add to database
     db.session.add(new_admin)
+    db.session.commit()
+    
+    return jsonify({'message': 'Admin registered successfully'}), 201
+
+# Register Admin for Institution
+@institution.route('/institution/admin/<int:id>', methods=['PUT'])
+def update_admin(id):
+    data = request.get_json()
+    
+    admin = Admin.query.filter_by(institution_id=id).all()
+    if data["full_name"] in data:
+        admin.full_name = data["full_name"]
+    if data["password"] in data:
+        if not bcrypt.checkpw(data["password"].encode('utf-8'), admin.password.encode('utf-8')):
+            return jsonify({'error': 'Password does not match'}), 400
+        admin.password = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8')
+    if data["phone"] in data:
+        admin.phone = data["phone"]
+
+    
+    # Add to database
+    db.session.add(admin)
     db.session.commit()
     
     return jsonify({'message': 'Admin registered successfully'}), 201

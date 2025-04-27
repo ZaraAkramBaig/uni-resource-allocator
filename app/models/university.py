@@ -1,5 +1,5 @@
 from datetime import datetime
-from .SuperAdmin import Admin  # Assuming Admin model is in the same directory
+from .admin import Admin  # Assuming Admin model is in the same directory
 from App.models import db
 class Institution(db.Model):
     __tablename__ = 'institutions'
@@ -21,6 +21,9 @@ class Institution(db.Model):
     city = db.Column(db.String(100))
     postal_code = db.Column(db.String(20))
     full_address = db.Column(db.Text)
+
+    admin_full_name = db.Column(db.String(150), nullable=False)
+    admin_phone_number = db.Column(db.String(20), nullable=False)
 
     # Other Info
     accreditation_details = db.Column(db.Text)

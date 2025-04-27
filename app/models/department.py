@@ -5,13 +5,8 @@ class Department(db.Model):
     name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(10), unique=True, nullable=False)
     
-    # Relationships
-    faculty = db.relationship('Faculty', backref='department', lazy=True)
-    courses = db.relationship('Course', backref='department', lazy=True)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'code': self.code
-        }
+    # # Relationships
+    # faculty = db.relationship('Faculty', backref='department', lazy=True)
+    # courses = db.relationship('Course', backref='department', lazy=True)
+    department_heads = db.relationship('DepartmentHead', backref='department', lazy=True)
+    # students = db.relationship('Student', backref='department', lazy=True)
