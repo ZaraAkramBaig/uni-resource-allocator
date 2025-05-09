@@ -9,7 +9,6 @@ userInfo = Blueprint("user", __name__)
 def register_user():
     data = request.get_json()
     print(data)
-
     # Check if the user already exists
     existing_user = User.query.filter_by(email=data["email"]).first()
     if existing_user:
@@ -18,8 +17,10 @@ def register_user():
     # Create new user instance
     new_user = User(
         email=data["email"],
-        password= bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)),  # Hash the password in a real application
-        role=data["role"]
+        password= bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8'),
+        role=data["role"],
+        institution_id=data["institution_id"],
+        department_id=data["department_id"]
     )
 
     # Add to database
@@ -43,9 +44,10 @@ def update_user(user_id):
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    
-    user.email = data.get("email", user.email)
-
-    user.password_hash = data.get("password", user.password_hash)  # Hash the password in a real application
+    if data.email in data:
+        user.email = data.get("email", user.email)
+    if data.password in data:
+        user.password= bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8'),
     return jsonify({"message": "User updated successfully"}), 200
+
 

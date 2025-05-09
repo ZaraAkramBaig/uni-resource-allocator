@@ -1,5 +1,5 @@
 from flask import jsonify
-from flask import request, flash, Blueprint
+from flask import request, Blueprint
 from .models.admin import Admin
 from .models.university import Institution
 from App.models import db
@@ -21,9 +21,6 @@ def register_institution():
         name=data['name'],
         year_established=data['year_established'],
         institution_code=data['institution_code'],
-        official_email=data['official_email'],
-        phone_number=data['phone_number'],
-        alternate_phone=data.get('alternate_phone'),
         website_url=data.get('website_url'),
         country=data['country'],
         state_province=data['state_province'],
@@ -48,7 +45,6 @@ def register_institution():
 @institution.route('/institution', methods=['GET'])
 def get_institutions():
     institutions = Institution.query.all()
-    print(institutions)
     institution_list = []
 
     for institution in institutions:
@@ -57,9 +53,6 @@ def get_institutions():
             'name': institution.name,
             'year_established': int(institution.year_established) if institution.year_established else 0,
             'institution_code': institution.institution_code,
-            'official_email': institution.official_email,
-            'phone_number': institution.phone_number,
-            'alternate_phone': institution.alternate_phone,
             'website_url': institution.website_url,
             'country': institution.country,
             'state_province': institution.state_province,
@@ -137,24 +130,3 @@ def register_admin(institution_id):
     
     return jsonify({'message': 'Admin registered successfully'}), 201
 
-# Register Admin for Institution
-@institution.route('/institution/admin/<int:id>', methods=['PUT'])
-def update_admin(id):
-    data = request.get_json()
-    
-    admin = Admin.query.filter_by(institution_id=id).all()
-    if data["full_name"] in data:
-        admin.full_name = data["full_name"]
-    if data["password"] in data:
-        if not bcrypt.checkpw(data["password"].encode('utf-8'), admin.password.encode('utf-8')):
-            return jsonify({'error': 'Password does not match'}), 400
-        admin.password = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8')
-    if data["phone"] in data:
-        admin.phone = data["phone"]
-
-    
-    # Add to database
-    db.session.add(admin)
-    db.session.commit()
-    
-    return jsonify({'message': 'Admin registered successfully'}), 201

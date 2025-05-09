@@ -1,5 +1,4 @@
 from datetime import datetime
-from .admin import Admin  # Assuming Admin model is in the same directory
 from App.models import db
 class Institution(db.Model):
     __tablename__ = 'institutions'
@@ -9,10 +8,7 @@ class Institution(db.Model):
     year_established = db.Column(db.Integer)
     institution_code = db.Column(db.String(50), unique=True)
 
-    # Contact Information
-    official_email = db.Column(db.String(120), nullable=False, unique=True)
-    phone_number = db.Column(db.String(20), nullable=False)
-    alternate_phone = db.Column(db.String(20))
+    # Contact Information=
     website_url = db.Column(db.String(255))
 
     # Location
@@ -30,7 +26,13 @@ class Institution(db.Model):
     additional_notes = db.Column(db.Text)
 
     # Relationship with admin
-    admin = db.relationship('Admin', backref='institution', uselist=False, cascade="all, delete", lazy=True)
+    admin = db.relationship(
+    'Admin',
+    backref=db.backref('institution', passive_deletes=True),
+    uselist=False,
+    cascade='all, delete-orphan',
+    lazy=True
+)
     active = db.Column(db.Boolean, default=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

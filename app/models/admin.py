@@ -7,9 +7,7 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    # this links Admin -> User
-
-    institution_id = db.Column(db.Integer, db.ForeignKey('institutions.id'), nullable=False)
+    institution_id = db.Column(db.Integer, db.ForeignKey('institutions.id', ondelete='CASCADE'), nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
