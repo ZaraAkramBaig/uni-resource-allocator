@@ -4,7 +4,6 @@ from App.models import db
 
 student_bp = Blueprint('student', __name__)
 
-
 @student_bp.route('/student', methods=['POST'])
 def create_student():
     data = request.get_json()
