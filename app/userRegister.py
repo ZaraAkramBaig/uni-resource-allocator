@@ -8,7 +8,6 @@ userInfo = Blueprint("user", __name__)
 @userInfo.route("/user/register", methods=["POST"])
 def register_user():
     data = request.get_json()
-    print(data)
     # Check if the user already exists
     existing_user = User.query.filter_by(email=data["email"]).first()
     if existing_user:

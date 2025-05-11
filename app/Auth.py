@@ -12,10 +12,9 @@ def login():
     password = request.json.get("password")
 
     user_from_db = User.query.filter_by(email=email).first()
-
+    
     if not user_from_db:
         return jsonify(message="User does not Exist"), 401
-    
     if not bcrypt.checkpw(password.encode('utf-8'), user_from_db.password.encode('utf-8')):
         return jsonify(message="Incorrect Password"), 401
 

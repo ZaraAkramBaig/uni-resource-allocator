@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from .models import db
 from .models.department import Department
 from .models.department_head import DepartmentHead
-from datetime import datetime
 
 departmentInfo = Blueprint("department", __name__)
 
@@ -30,13 +29,19 @@ def create_department_head():
     db.session.add(new_department_head)
     db.session.commit()
 
-    return jsonify({"message": "Department head created successfully", "id": new_department_head.id}), 201
+    return jsonify({"message": "Department head created successfully", "new_department_head": {
+        "id": new_department_head.id,
+            "name": new_department_head.name,
+            "email": new_department_head.email,
+            "department_id": new_department_head.department_id,
+            "institution_id": new_department_head.institution_id
+    }}), 201
 
 
-# Get All Department Heads
-@departmentInfo.route('/department_heads', methods=['GET'])
-def get_department_heads():
-    heads = DepartmentHead.query.all()
+# Get All Department Heads with specific institution
+@departmentInfo.route('/department_heads/<string:inst_id>', methods=['GET'])
+def get_department_heads(inst_id):
+    heads = DepartmentHead.query.filter_by(institution_id=inst_id).all()
     deptHeads = []
     for head in heads:
         dept_dict = {
@@ -52,32 +57,6 @@ def get_department_heads():
         "message": f"Found {len(heads)} department head(s)"
     }), 200
 
-
-# Update Department Head
-@departmentInfo.route('/department_heads/<string:dept_head_id>', methods=['PUT'])
-def update_department_head(dept_head_id):
-    department_head = DepartmentHead.query.get(dept_head_id)
-    if not department_head:
-        return jsonify({"error": "Department head not found"}), 404
-
-    data = request.get_json()
-
-    if "name" in data:
-        department_head.name = data["name"]
-    if "email" in data:
-        if DepartmentHead.query.filter(
-            DepartmentHead.email == data["email"],
-            DepartmentHead.id != dept_head_id
-        ).first():
-            return jsonify({"error": "Email already exists"}), 400
-        department_head.email = data["email"]
-    if "department_id" in data:
-        department_head.department_id = data["department_id"]
-
-    department_head.updated_at = datetime.utcnow()
-    db.session.commit()
-
-    return jsonify({"message": "Department head updated successfully", "department_head": department_head.to_dict()}), 200
 
 
 # Delete Department Head
@@ -96,10 +75,9 @@ def delete_department_head(dept_head_id):
 # --------------------- Department Routes ---------------------
 
 # Get Departments
-@departmentInfo.route("/departments", methods=["GET"])
-def get_departments():
-    depts = Department.query.all()
-    print(depts.__dir__)
+@departmentInfo.route("/departments/<string:inst_id>", methods=["GET"])
+def get_departments(inst_id):
+    depts = Department.query.filter_by(institution_id=inst_id).all()
     departments = []
     for dept in depts:
         dept_dict = {
@@ -126,7 +104,11 @@ def create_department():
     db.session.add(dept)
     db.session.commit()
 
-    return jsonify({"message": "Department created successfully", "id": dept.id}), 201
+    return jsonify({"message": "Department created successfully", "dept": {
+        "id": dept.id,
+        "name": dept.name,
+        "code": dept.code,
+    }}), 201
 
 
 # Update Department

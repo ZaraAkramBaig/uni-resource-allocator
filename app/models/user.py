@@ -10,4 +10,5 @@ class User(db.Model):
     institution_id = db.Column(db.Integer, db.ForeignKey('institutions.id', ondelete='CASCADE'))
     department_id = db.Column(db.Integer, db.ForeignKey('department.id', ondelete='CASCADE'))
     
+    
 
