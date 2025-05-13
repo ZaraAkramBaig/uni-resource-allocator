@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.models import db
+from App.models import db
 class Institution(db.Model):
     __tablename__ = 'institutions'
 
