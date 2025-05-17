@@ -33,6 +33,13 @@ class Institution(db.Model):
     cascade='all, delete-orphan',
     lazy=True
 )
+    departments = db.relationship(
+    'Department',
+    backref=db.backref('institution', lazy=True),
+    cascade='all, delete-orphan',
+    passive_deletes=True,
+    lazy=True
+)
     active = db.Column(db.Boolean, default=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

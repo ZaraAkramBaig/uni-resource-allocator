@@ -16,6 +16,7 @@ def login():
     if not user_from_db:
         return jsonify(message="User does not Exist"), 401
     if not bcrypt.checkpw(password.encode('utf-8'), user_from_db.password.encode('utf-8')):
+        print("hello")
         return jsonify(message="Incorrect Password"), 401
 
     access_token = create_access_token(identity={

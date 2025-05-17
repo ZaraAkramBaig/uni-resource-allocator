@@ -18,7 +18,16 @@ def create_student():
     )
     db.session.add(student)
     db.session.commit()
-    return jsonify({'message': 'Student created'}), 201
+    return jsonify({'message': 'Student created', "studentData":  {
+        "id": student.id,
+            "name": student.full_name,
+            "email": student.email,
+            "department_id": student.department_id,
+            "institution_id": student.institution_id,
+            "section": student.section,
+            "year": student.year,
+            "user_id": student.user_id
+    }}), 201
 
 
 @student_bp.route('/student/<string:id>', methods=['DELETE'])
@@ -42,7 +51,25 @@ def get_all_students(inst_id):
             "institution_id": student.institution_id,
             "section": student.section,
             "year": student.year,
+            "user_id": student.user_id
 
         }
         s.append(dept_dict)
     return jsonify({"students": s})
+
+@student_bp.route('/student/user/<id>', methods=['GET'])
+def get_student(id):
+    student = Student.query.filter_by(user_id=id).first()
+    dept_dict = {
+        "id": student.id,
+        "name": student.full_name,
+        "email": student.email,
+        "department_id": student.department_id,
+        "institution_id": student.institution_id,
+        "section": student.section,
+        "year": student.year,
+        "user_id": student.user_id
+
+    }
+    return jsonify({"student": dept_dict})
+

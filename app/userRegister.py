@@ -35,18 +35,26 @@ def register_user():
     }
 }), 201
 
-@userInfo.route("/user/<int:user_id>", methods=["PUT"])
-def update_user(user_id):
-    data = request.get_json()
+@userInfo.route('/user/<int:id>', methods=['DELETE'])
+def delete_teacher(id):
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User deleted'})
 
-    # Check if the user exists
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-    if data.email in data:
-        user.email = data.get("email", user.email)
-    if data.password in data:
-        user.password= bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt(10)).decode('utf-8'),
-    return jsonify({"message": "User updated successfully"}), 200
+@userInfo.route('/user/dept/<int:id>', methods=['DELETE'])
+def delete_users_by_department(id):
+    users = User.query.filter_by(department_id=id).all()
+    for user in users:
+        db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': f'{len(users)} user(s) deleted from department {id}'})
 
 
+@userInfo.route('/user/institution/<string:id>', methods=['DELETE'])
+def delete_users_by_institution(id):
+    users = User.query.filter_by(institution_id=id).all()
+    for user in users:
+        db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': f'{len(users)} user(s) deleted from institution {id}'})

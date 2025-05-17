@@ -79,7 +79,7 @@ def get_institutions():
 
 
 #delete institution
-@institution.route('/institution/<int:id>', methods=['DELETE'])
+@institution.route('/institution/<string:id>', methods=['DELETE'])
 def delete_institution(id):
     institution = Institution.query.get(id)
     if not institution:

@@ -34,7 +34,8 @@ def create_department_head():
             "name": new_department_head.name,
             "email": new_department_head.email,
             "department_id": new_department_head.department_id,
-            "institution_id": new_department_head.institution_id
+            "institution_id": new_department_head.institution_id,
+            "user_id": new_department_head.user_id
     }}), 201
 
 
@@ -49,7 +50,8 @@ def get_department_heads(inst_id):
             "name": head.name,
             "email": head.email,
             "department_id": head.department_id,
-            "institution_id": head.institution_id
+            "institution_id": head.institution_id,
+            "user_id": head.user_id
         }
         deptHeads.append(dept_dict)
     return jsonify({
@@ -88,6 +90,18 @@ def get_departments(inst_id):
         departments.append(dept_dict)
 
     return jsonify({"departments": departments, "message": f"Found {len(departments)} department(s)"}), 200
+
+#Get department by id
+@departmentInfo.route("/department/<id>", methods=["GET"])
+def get_department_by_id(id):
+    dept = Department.query.filter_by(id=id).first()
+    dept_dict = {
+        "id": dept.id,
+        "name": dept.name,
+        "code": dept.code,
+    }
+
+    return jsonify({"department": dept_dict}), 200
 
 
 # Create Department
