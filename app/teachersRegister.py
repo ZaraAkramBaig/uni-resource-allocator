@@ -26,14 +26,6 @@ def create_teacher():
         "institution_id": teacher.institution_id,
     }}), 201
 
-@teacher_bp.route('/teacher/<int:id>', methods=['PUT'])
-def update_teacher(id):
-    teacher = Teacher.query.get_or_404(id)
-    data = request.json
-    teacher.full_name = data.get('full_name', teacher.full_name)
-    teacher.email = data.get('email', teacher.email)
-    db.session.commit()
-    return jsonify({'message': 'Teacher updated'})
 
 @teacher_bp.route('/teacher/<int:id>', methods=['DELETE'])
 def delete_teacher(id):
@@ -56,3 +48,15 @@ def get_all_teachers(inst_id):
         }
         t.append(dept_dict)
     return jsonify({"teachers": t})
+
+@teacher_bp.route('/teacher/user/<id>', methods=['GET'])
+def get_teacher_by_id(id):
+    teacher = Teacher.query.filter_by(user_id=id).first()
+    dept_dict = {
+        "id": teacher.id,
+        "name": teacher.full_name,
+        "email": teacher.email,
+        "department_id": teacher.department_id,
+        "institution_id": teacher.institution_id
+    }
+    return jsonify({"teacher": dept_dict})

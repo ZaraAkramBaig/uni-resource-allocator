@@ -1,11 +1,10 @@
 from flask import jsonify
 from flask import request, Blueprint
-from .models.admin import Admin
-from .models.university import Institution
+from App.models.admin import Admin
+from App.models.university import Institution
 from App.models import db
 import datetime
 import bcrypt
-from .models.user import User
 
 institution = Blueprint('institution', __name__)
 

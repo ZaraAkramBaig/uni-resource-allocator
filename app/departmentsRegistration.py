@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from .models import db
-from .models.department import Department
-from .models.department_head import DepartmentHead
+from App.models import db
+from App.models.department import Department
+from App.models.department_head import DepartmentHead
 
 departmentInfo = Blueprint("department", __name__)
 

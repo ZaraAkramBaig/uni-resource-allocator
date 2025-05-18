@@ -8,44 +8,19 @@ from App.models import db
 
 schedule = Blueprint("schedule",__name__)
 
-# def initialize_database():
-#     """Create initial years and sections if they don't exist."""
-#     years = ["1st Year", "2nd Year", "3rd Year", "4th Year"]
-#     sections = ["Section A", "Section B", "Section C"]
-#     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    
-#     for year_name in years:
-#         year = Year.query.filter_by(name=year_name).first()
-#         print(year)
-#         if not year:
-#             year = Year(name=year_name)
-#             db.session.add(year)
-#             db.session.commit()
-#         for section_name in sections:
-#             section = Section.query.filter_by(name=section_name, year_id=year.id).first()
-#             print(section)
-#             if not section:
-#                 section = Section(name=section_name, year_id=year.id)
-#                 db.session.add(section)
-#                 db.session.commit()
-#             for day_name in days:
-#                 schedule = Schedule.query.filter_by(day=day_name, section_id=section.id).first()
-#                 print(schedule)
-#                 if not schedule:
-#                     schedule = Schedule(day=day_name, section_id=section.id)
-#                     db.session.add(schedule)
-    
-#     db.session.commit()
 
 
-def schedule_to_dict(department_id, institution_id):
+
+def schedule_to_dict(department_id, institution_id, teacher):
     """Convert database schedule into nested dict using index lookups (O(n²)), ensures all 4 years are included."""
 
     # Step 1: Bulk fetch everything
     years = Year.query.all()
     sections = Section.query.all()
     schedules = Schedule.query.all()
-    time_slots = TimeSlot.query.filter_by(department_id=department_id, institution_id=institution_id).all()
+    if teacher: time_slots = TimeSlot.query.filter_by(department_id=department_id, institution_id=institution_id, teacher=teacher).all()
+    else: time_slots = TimeSlot.query.filter_by(department_id=department_id, institution_id=institution_id).all()
+    
 
     # Step 2: Create ID-to-object maps for quick lookup
     year_map = {year.id: year.name for year in years}
@@ -149,7 +124,12 @@ def scheduleByYear(department_id, institution_id, year_name, section_name):
 @schedule.route('/schedule/<institution_id>/<department_id>', methods=['GET'])
 def get_schedule(institution_id, department_id):
     """Get the entire schedule."""
-    return jsonify(schedule_to_dict(institution_id, department_id))
+    return jsonify(schedule_to_dict(institution_id, department_id, None))
+
+@schedule.route('/schedule/<institution_id>/<department_id>/<teacher>', methods=['GET'])
+def get_schedule_for_teacher(institution_id, department_id, teacher):
+    """Get the entire schedule."""
+    return jsonify(schedule_to_dict(institution_id, department_id, teacher))
 
 
 @schedule.route('/schedule/<institution_id>/<department_id>/<year>/<section>', methods=['GET'])
@@ -206,7 +186,8 @@ def create_schedule(year_name, section_name):
                 schedule_id=day.id,
                 institution_id=slot_data.get('institution_id'),
                 department_id=slot_data.get('department_id'),
-                time_ID=slot_data.get("time_ID")
+                time_ID=slot_data.get("time_ID"),
+                teacher_id=slot_data.get("teacher_id")
             )
             new_slots.append(new_slot)
             new_slots_json.append({time_str: {
@@ -224,28 +205,34 @@ def create_schedule(year_name, section_name):
     db.session.commit()
     return jsonify({"message": "Schedule created successfully", "time": new_slots_json}), 201
 
+
 @schedule.route('/time/<institution_id>/<department_id>', methods=['POST'])
 def create_time(institution_id, department_id):
     data = request.get_json()
     if len(data) > 0:
+        tList = []
         for time in data:
-            t = Time.query.filter_by(time=time).first()
-            if t is not None: 
+            t = Time.query.filter_by(department_id=department_id, institution_id=institution_id,time=time).first()
+            if t is not None:
                 continue
             else:
                 new_time = Time(
                     time=time,
-                    department_id=institution_id,
-                    institution_id=department_id
+                    department_id=department_id,  # Corrected parameter assignment
+                    institution_id=institution_id  # Corrected parameter assignment
                 )
                 db.session.add(new_time)
                 db.session.commit()
-    return jsonify({"message": "Time created successfully", "time": {
-        'id': new_time.id,
-        'time': new_time.time,
-        'department_id': new_time.department_id,
-        'institution_id': new_time.institution_id
-    }}), 200
+                
+                # Fixed dictionary structure - removed the extra nested braces
+                tList.append({
+                    'id': new_time.id,
+                    'time': new_time.time,
+                    'department_id': new_time.department_id,
+                    'institution_id': new_time.institution_id
+                })
+                
+    return jsonify({"message": "Time created successfully", "time": tList}), 200
         
     
 
