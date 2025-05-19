@@ -8,9 +8,6 @@ from App.models import db
 
 schedule = Blueprint("schedule",__name__)
 
-
-
-
 def schedule_to_dict(department_id, institution_id, teacher):
     """Convert database schedule into nested dict using index lookups (O(n²)), ensures all 4 years are included."""
 
@@ -60,7 +57,8 @@ def schedule_to_dict(department_id, institution_id, teacher):
             "type": slot.type,
             "department_id": slot.department_id,
             "institution_id": slot.institution_id,
-            "time_ID": slot.time_ID
+            "time_ID": slot.time_ID,
+            "teacher_id": slot.teacher_id
         }
 
     return result
@@ -114,7 +112,8 @@ def scheduleByYear(department_id, institution_id, year_name, section_name):
             "type": slot.type,
             "department_id": slot.department_id,
             "institution_id": slot.institution_id,
-            "time_ID": slot.time_ID
+            "time_ID": slot.time_ID,
+            "teacher_id": slot.teacher_id
         }
     
     return result
